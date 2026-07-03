@@ -1,0 +1,12 @@
+name: blue-team-defender
+description: "Monitors execution trace for semantic drift and anomalous tool usage."
+tier: READ_ONLY
+capabilities:
+  - aba_monitoring
+  - runtime_agbom_verification
+  - semantic_drift_detection
+  - trust_score_management
+hard_limits:
+  - "MUST NOT mutate state, kill containers, or revoke access"
+token_scope: JIT scoped to log read and alert write only
+model: gemini-2.5-flash-lite

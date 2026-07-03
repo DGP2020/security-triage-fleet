@@ -1,0 +1,14 @@
+.env
+.env.*
+agent-env/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.adk/
+.vscode/
+scratch/
+Dockerfile
+*.md

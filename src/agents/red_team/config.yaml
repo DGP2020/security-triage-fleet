@@ -1,0 +1,13 @@
+name: red-team-attacker
+description: "Injects Adversarial Vibes into the simulated environment."
+tier: ATTACK_ONLY
+capabilities:
+  - adversarial_vibe_injection
+  - jailbreak_crafting
+  - rag_poisoning
+blast_radius: ephemeral_sandbox_only
+hard_limits:
+  - "MUST NOT target Orchestrator, Policy Servers, or host infrastructure"
+  - "NEVER attack outside the ephemeral sandbox."
+token_scope: JIT scoped to sandbox write access
+model: gemini-2.5-flash-lite

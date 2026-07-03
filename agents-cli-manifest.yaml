@@ -1,0 +1,9 @@
+name: security-triage-fleet
+version: 1.0.0
+description: "Dynamic Threat Hunting Simulator & Triage Fleet"
+agent_directory: src/agents
+agents:
+  - orchestrator
+  - red_team
+  - blue_team
+  - green_team

@@ -1,0 +1,13 @@
+name: green-team-fixer
+description: "Executes stateful quarantine and auto-refactoring via JIT token."
+tier: ACTION_ALLOWED
+capabilities:
+  - stateful_quarantine
+  - auto_refactoring
+  - soar_playbook_execution
+hard_limits:
+  - "MUST NOT autonomously commit, merge, or execute quarantine without HITL sign-off"
+  - "NEVER execute without a valid, unexpired JIT token."
+  - "NEVER terminate the container or flush the agent's memory."
+token_scope: JIT scoped to tool-access revocation and code-write (issued after HITL)
+model: gemini-2.5-flash

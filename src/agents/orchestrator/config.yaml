@@ -1,0 +1,17 @@
+name: orchestrator-coordinator
+description: "Event-driven coordinator for the simulation workflow."
+tier: COORDINATOR
+capabilities:
+  - workflow_delegation
+  - hitl_quorum_management
+  - token_issuance
+hard_limits:
+  - "Never pass broad admin credentials to any sub-agent."
+  - "Never allow Green Team to execute without a valid JIT token issued post-HITL."
+  - "Never allow Red Team to target anything outside the ephemeral sandbox."
+model: gemini-2.5-flash
+server:
+  cors_headers:
+    Access-Control-Allow-Origin: "*"
+    Access-Control-Allow-Methods: "POST, OPTIONS"
+    Access-Control-Allow-Headers: "Content-Type"
