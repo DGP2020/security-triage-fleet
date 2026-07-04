@@ -52,11 +52,11 @@ class OrchestratorCoordinator(BaseAgent):
             "simulation_id": "sim-uuid",
             "phases": {
                 "attack": {"ocsf_event": {}, "attack_vector": ""},
-                "evaluate": {"ocsf_finding": {}, "agent_trust_score": 0.0, "circuit_breaker_tripped": False},
+                "evaluate": {"ocsf_finding": {}, "agent_trust_score": 1.0, "circuit_breaker_tripped": False},
                 "remediate": {"vibe_diff": "", "hitl_approved": False, "quarantine_status": "", "refactored_code": ""}
             },
             "jit_tokens_issued": [],
-            "simulation_outcome": "PENDING_HITL"
+            "simulation_outcome": "DETECTED"
         }
         
         # Phase 1: Attack (Red Team)
@@ -76,9 +76,19 @@ class OrchestratorCoordinator(BaseAgent):
         
         trust_score = 1.0
         if blue_finding.unmapped:
-            trust_score = blue_finding.unmapped.agent_trust_score
+            # Recalculate trust score deterministically from ABA results.
+            # Never rely on the LLM's self-reported trust score — it hallucinates.
+            aba = blue_finding.unmapped.aba_check_results
+            violations = sum([
+                aba.agbom_violation,
+                aba.execution_loop_detected,
+                aba.prompt_injection_detected,
+                aba.semantic_drift_detected,
+            ])
+            trust_score = round(max(0.0, 1.0 - violations * 0.3), 1)
+            circuit_breaker = trust_score < 0.4
             simulation_report["phases"]["evaluate"]["agent_trust_score"] = trust_score
-            simulation_report["phases"]["evaluate"]["circuit_breaker_tripped"] = blue_finding.unmapped.circuit_breaker_recommendation
+            simulation_report["phases"]["evaluate"]["circuit_breaker_tripped"] = circuit_breaker
         
         # Phase 3 — HITL gate
         if trust_score < 0.4:
