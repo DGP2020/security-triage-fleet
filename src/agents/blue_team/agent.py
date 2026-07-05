@@ -18,7 +18,6 @@ class BlueTeamDefender:
         with open(md_path, "r", encoding="utf-8") as f:
             self.system_prompt = f.read()
         
-        self.client = genai.Client()
 
     @retry(
         wait=wait_exponential(min=2, max=8),
@@ -26,10 +25,11 @@ class BlueTeamDefender:
         retry=retry_if_exception(is_503_error),
         reraise=True
     )
-    async def invoke(self, prompt: str) -> str:
+    async def invoke(self, prompt: str, api_key: str = None) -> str:
         """Evaluates an OCSF 4001 event string and returns an OCSF 2004 Detection Finding JSON string."""
-        response = self.client.models.generate_content(
-            model='gemini-2.5-flash-lite',
+        client = genai.Client(api_key=api_key)
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
             contents=prompt,
             config=types.GenerateContentConfig(
                 system_instruction=self.system_prompt,
@@ -42,4 +42,3 @@ class BlueTeamDefender:
         event = DetectionFindingEvent(**event_dict)
         return event.model_dump_json()
 
-root_agent = BlueTeamDefender()

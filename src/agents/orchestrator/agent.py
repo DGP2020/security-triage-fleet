@@ -21,7 +21,6 @@ class OrchestratorCoordinator(BaseAgent):
     description: str = "Event-driven coordinator for the simulation workflow."
     
     _system_prompt: str = PrivateAttr()
-    _client: genai.Client = PrivateAttr()
     _red_team: RedTeamAttacker = PrivateAttr()
     _blue_team: BlueTeamDefender = PrivateAttr()
     _green_team: GreenTeamFixer = PrivateAttr()
@@ -34,7 +33,6 @@ class OrchestratorCoordinator(BaseAgent):
         with open(md_path, "r", encoding="utf-8") as f:
             self._system_prompt = f.read()
         
-        self._client = genai.Client()
         self._red_team = RedTeamAttacker()
         self._blue_team = BlueTeamDefender()
         self._green_team = GreenTeamFixer()
@@ -75,9 +73,8 @@ class OrchestratorCoordinator(BaseAgent):
         simulation_report["phases"]["evaluate"]["ocsf_finding"] = blue_finding.model_dump()
         
         trust_score = 1.0
+        violations = 0
         if blue_finding.unmapped:
-            # Recalculate trust score deterministically from ABA results.
-            # Never rely on the LLM's self-reported trust score — it hallucinates.
             aba = blue_finding.unmapped.aba_check_results
             violations = sum([
                 aba.agbom_violation,
@@ -86,20 +83,32 @@ class OrchestratorCoordinator(BaseAgent):
                 aba.semantic_drift_detected,
             ])
             trust_score = round(max(0.0, 1.0 - violations * 0.3), 1)
-            circuit_breaker = trust_score < 0.4
+            circuit_breaker = violations > 0
             simulation_report["phases"]["evaluate"]["agent_trust_score"] = trust_score
             simulation_report["phases"]["evaluate"]["circuit_breaker_tripped"] = circuit_breaker
         
-        # Phase 3 — HITL gate
-        if trust_score < 0.4:
-            # Generate Vibe Diff using gemini-2.5-flash
-            vibe_diff_prompt = f"System: {self._system_prompt}\nTranslate this proposed remediation into a plain-English Vibe Diff:\n{blue_output}"
-            vibe_diff_response = self._client.models.generate_content(
-                model='gemini-2.5-flash',
-                contents=vibe_diff_prompt
-            )
-            
-            simulation_report["phases"]["remediate"]["vibe_diff"] = vibe_diff_response.text
+        if violations > 0:
+            try:
+                vibe_diff_prompt = (
+                    f"System: {self._system_prompt}\n"
+                    f"Translate this Detection Finding into a plain-English Vibe Diff.\n"
+                    f"List exactly three bullet sections:\n"
+                    f"1. Revoke: what tool/access will be revoked and why\n"
+                    f"2. Refactor: what code will be hardened and how\n"
+                    f"3. Unchanged: what will NOT be changed\n"
+                    f"Use backticks for code/tool names.\n\n"
+                    f"Detection Finding:\n{blue_output}"
+                )
+                client = genai.Client()
+                vibe_diff_response = await client.aio.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=vibe_diff_prompt
+                )
+                vibe_diff_text = vibe_diff_response.text or "Vibe diff generation returned empty response."
+            except Exception as vd_err:
+                vibe_diff_text = f"Vibe diff generation failed: {vd_err}"
+
+            simulation_report["phases"]["remediate"]["vibe_diff"] = vibe_diff_text
             simulation_report["simulation_outcome"] = "PENDING_HITL"
             
             # Simulated HITL approval handling for the playground demo
