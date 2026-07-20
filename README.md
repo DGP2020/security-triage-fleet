@@ -21,27 +21,9 @@ Demo requires a free Google AI Studio API key.
 Get one free at aistudio.google.com — no credit card needed.
 Takes 30 seconds to set up.
 
-### Option 1: Running with Docker (Recommended)
+### Option 1: Hugging face space(Recommended)
 
-Running with Docker ensures you have the exact environment needed without modifying your local system.
-
-**1. Build the Docker image:**
-Open your terminal in the project root directory and run:
-```bash
-docker build -t security-triage-fleet .
-```
-
-**2. Run the container:**
-Start the container and pass your Google API Key as an environment variable:
-```bash
-docker run -p 8080:8080 -e GOOGLE_API_KEY="your_api_key_here" security-triage-fleet
-```
-
-**3. Access the Dashboard:**
-Open your web browser and navigate to:  
-[http://localhost:8080](http://localhost:8080)
-
----
+Visit (https://huggingface.co/spaces/DanielGP12/security-triage-fleet) to see the live version
 
 ### Option 2: Running Locally with Python
 
