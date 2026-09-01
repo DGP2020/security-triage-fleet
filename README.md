@@ -21,9 +21,7 @@ Demo requires a free Google AI Studio API key.
 Get one free at aistudio.google.com — no credit card needed.
 Takes 30 seconds to set up.
 
-### Option 1: Hugging face space(Recommended)
-
-Visit (https://huggingface.co/spaces/DanielGP12/security-triage-fleet) to see the live version
+### Option 1: Hugging face space(no longer available)
 
 ### Option 2: Running Locally with Python
 
