@@ -4,6 +4,8 @@ Welcome to the **Security Triage Fleet** project! This repository contains a mul
 
 The project orchestrates multiple specialized AI agents (Red Team, Blue Team, Green Team) to triage, analyze, and remediate security threats. It features a FastAPI backend and a web-based dashboard for interactive simulation and Human-In-The-Loop (HITL) approval.
 
+Visit [the Kaggle writeup](https://www.kaggle.com/competitions/vibecoding-agents-capstone-project/writeups/new-writeup-1781949707273) to read in depth about the project.
+
 ---
 
 ## 🚀 Setup Instructions
